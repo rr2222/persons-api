@@ -5,13 +5,15 @@ import com.rr2222.personapi.dto.request.PersonDTO;
 import com.rr2222.personapi.entity.Person;
 
 import com.rr2222.personapi.repository.PersonRepository;
+import jdk.nashorn.internal.objects.NativeArray;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
@@ -33,5 +35,15 @@ public class PersonService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate localDate = LocalDate.parse(data, formatter);
         return localDate;
+    }
+
+    public List<PersonDTO> listAll() {
+        List<Person> personList = personRepository.findAll();
+        ModelMapper modelMapper = new ModelMapper();
+
+        List<PersonDTO> dtos = personList.stream()
+                .map(user -> modelMapper.map(user, PersonDTO.class))
+                .collect(Collectors.toList());
+        return dtos;
     }
 }
