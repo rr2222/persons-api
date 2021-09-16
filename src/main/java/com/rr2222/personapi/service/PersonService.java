@@ -6,6 +6,7 @@ import com.rr2222.personapi.entity.Person;
 
 import com.rr2222.personapi.exception.PersonNotFoundException;
 import com.rr2222.personapi.repository.PersonRepository;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PersonService {
 
-    @Autowired
     private PersonRepository personRepository;
 
 
