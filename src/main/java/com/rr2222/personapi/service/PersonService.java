@@ -43,17 +43,31 @@ public class PersonService {
     }
 
     public PersonDTO findById(Long id) throws PersonNotFoundException {
-        Optional<Person> retorno = personRepository.findById(id);
-        if (!retorno.isPresent()){
-            throw new PersonNotFoundException(id);
-        }
+        Optional<Person> retorno = verifyIfExists(id);
         ModelMapper modelMapper = new ModelMapper();
        return modelMapper.map(retorno.get(), PersonDTO.class);
     }
+
 
     private LocalDate convertStringToData(String data){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate localDate = LocalDate.parse(data, formatter);
         return localDate;
+    }
+
+    public void deletePersonById(Long id) throws PersonNotFoundException {
+        Optional<Person> retorno = verifyIfExists(id);
+        if (!retorno.isPresent()){
+            throw new PersonNotFoundException(id);
+        }
+        personRepository.delete(retorno.get());
+    }
+
+    private Optional<Person> verifyIfExists(Long id) throws PersonNotFoundException {
+        Optional<Person> retorno = personRepository.findById(id);
+        if (!retorno.isPresent()){
+            throw new PersonNotFoundException(id);
+        }
+        return retorno;
     }
 }
