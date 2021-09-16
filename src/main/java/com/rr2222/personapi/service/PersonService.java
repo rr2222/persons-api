@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
+
     @Autowired
     private PersonRepository personRepository;
 
@@ -27,9 +28,7 @@ public class PersonService {
         Person personToSave = modelMapper.map(personDTO, Person.class);
         personToSave.setBirthDate(convertStringToData(personDTO.getBirthDate()));
         Person savedPerson = personRepository.save(personToSave);
-        return MessageResponseDTO.builder()
-                .message("Created person with id" + savedPerson.getId())
-                .build();
+        return createMessageResponse("Created Person with ID ", savedPerson.getId());
     }
 
     public List<PersonDTO> listAll() {
@@ -49,12 +48,6 @@ public class PersonService {
     }
 
 
-    private LocalDate convertStringToData(String data){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate localDate = LocalDate.parse(data, formatter);
-        return localDate;
-    }
-
     public void deletePersonById(Long id) throws PersonNotFoundException {
         Optional<Person> retorno = verifyIfExists(id);
         if (!retorno.isPresent()){
@@ -63,11 +56,35 @@ public class PersonService {
         personRepository.delete(retorno.get());
     }
 
+    public MessageResponseDTO updatePersonById(Long id, PersonDTO personDTO) throws PersonNotFoundException {
+        verifyIfExists(id);
+        ModelMapper modelMapper = new ModelMapper();
+
+        Person personToUpdate = modelMapper.map(personDTO, Person.class);
+        personToUpdate.setBirthDate(convertStringToData(personDTO.getBirthDate()));
+
+        Person updatedPerson = personRepository.save(personToUpdate);
+
+        return createMessageResponse("Update Person with ID ", personToUpdate.getId());
+    }
+
     private Optional<Person> verifyIfExists(Long id) throws PersonNotFoundException {
         Optional<Person> retorno = personRepository.findById(id);
         if (!retorno.isPresent()){
             throw new PersonNotFoundException(id);
         }
         return retorno;
+    }
+
+    private MessageResponseDTO createMessageResponse(String message, Long id) {
+        return MessageResponseDTO.builder()
+                .message(message + id)
+                .build();
+    }
+
+    private LocalDate convertStringToData(String data){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate localDate = LocalDate.parse(data, formatter);
+        return localDate;
     }
 }
